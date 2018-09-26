@@ -30,7 +30,10 @@ public class LevelManager : MonoBehaviour {
             if (timer > 0)
             {
                 timer -= Time.deltaTime;
-                PublicBehavior();
+                if (publicAnims.Length > 0)
+                {
+                    PublicBehavior();
+                }
             }
             else if (timer < 0)
                 timer = 0;
@@ -46,18 +49,24 @@ public class LevelManager : MonoBehaviour {
                 else
                     player.curHealth = enemy.curHealth = 0;
 
-                foreach (Animator a in publicAnims)
-                    a.SetBool("Clap", true);
+                if (publicAnims.Length > 0)
+                {
+                    foreach (Animator a in publicAnims)
+                        a.SetBool("Clap", true);
+                }
             }
 
-            foreach(TextMeshProUGUI t in text)
-                t.text = Mathf.RoundToInt(timer).ToString();
+                foreach (TextMeshProUGUI t in text)
+                    t.text = Mathf.RoundToInt(timer).ToString();
         }
 
         else
         {
-            foreach (Animator a in publicAnims)
-                a.SetBool("Clap", true);
+            if (publicAnims.Length > 0)
+            {
+                foreach (Animator a in publicAnims)
+                    a.SetBool("Clap", true);
+            }
 
             if (enemy.curHealth <= 0 && player.curHealth > 0)
                 winPanel.SetActive(true);
@@ -66,10 +75,10 @@ public class LevelManager : MonoBehaviour {
                 losePanel.SetActive(true);
 
             if (Input.GetKeyDown(KeyCode.R))
-                SceneManager.LoadScene("Main");
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
             if (Input.GetKeyDown(KeyCode.Escape))
-                SceneManager.LoadScene("Menu");
+                SceneManager.LoadScene("Menu1");
         }   
         if (Input.GetKeyDown(KeyCode.Escape) && !losePanel.activeSelf && !winPanel.activeSelf)
         {
@@ -131,7 +140,7 @@ public class LevelManager : MonoBehaviour {
     public void Restart()
     {
         Time.timeScale = 1;
-        SceneManager.LoadScene("Main");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void Menu()
@@ -139,6 +148,6 @@ public class LevelManager : MonoBehaviour {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         Time.timeScale = 1;
-        SceneManager.LoadScene("Menu");
+        SceneManager.LoadScene("Menu1");
     }
 }

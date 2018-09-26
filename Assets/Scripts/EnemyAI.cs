@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour {
     #region Public Variables
@@ -28,6 +29,7 @@ public class EnemyAI : MonoBehaviour {
     private Camera cam;
     private float turnSmoothVelocity;
     private CharacterController controller;
+    private NavMeshAgent agent;
     private float velY;
     private bool run;
     private bool move;
@@ -47,7 +49,7 @@ public class EnemyAI : MonoBehaviour {
         anim = GetComponent<Animator>();
         canAttack = true;
         controller = GetComponent<CharacterController>();
-
+        agent = GetComponent<NavMeshAgent>();
         for (int i = 0; i < partsNames.Length; i++)
         {
             parts.Add(partsNames[i], partsCol[i]);
@@ -58,6 +60,8 @@ public class EnemyAI : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        
+
         if(target.gameObject.GetComponent<KaratecaMovement>().died && GetComponent<PlayerHealth>().curHealth > 0)
         {
             if(!controle)
@@ -78,8 +82,12 @@ public class EnemyAI : MonoBehaviour {
 
         velY += Time.deltaTime * gravity;
 
-        if(controller.enabled)
+        if (controller.enabled)
+        {
+            //agent.destination = target.position;
+            agent.SetDestination(target.position);
             controller.Move(new Vector3(0, velY, 0) * Time.deltaTime);
+        }
 
         if(canTurn)
             transform.LookAt(new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z));
@@ -98,6 +106,8 @@ public class EnemyAI : MonoBehaviour {
             {
                 anim.SetFloat("Speed", 1);
                 anim.SetBool("Move", true);
+                agent.speed = 1f;
+                agent.isStopped = false;
             }
 
             else if (dist >= runDist)
@@ -105,17 +115,20 @@ public class EnemyAI : MonoBehaviour {
                 anim.SetFloat("Speed", 1);
                 anim.SetBool("Move", true);
                 anim.SetBool("Running", true);
+                agent.speed = 2f;
+                agent.isStopped = false;
             }
 
             else if (dist <= minDist)
             {
                 anim.SetBool("Move", false);
                 anim.SetBool("Running", false);
+                agent.isStopped = true;
 
                 if (attackDelay <= 0)
                 {
                     anim.SetFloat("AttackSide", attackSide);
-
+                    agent.isStopped = true;
                     int dir = Random.Range(-1, 2);
 
                     anim.SetFloat("Dir", dir);
@@ -138,6 +151,7 @@ public class EnemyAI : MonoBehaviour {
                     canTurn = false;
                     canAttack = false;
                     attackDelay = 2;
+                    agent.isStopped = true;
                 }
             }
 
@@ -151,6 +165,7 @@ public class EnemyAI : MonoBehaviour {
         {
             anim.SetFloat("Speed", 0);
             anim.SetBool("Move", false);
+            agent.isStopped = true;
         }
 
 
